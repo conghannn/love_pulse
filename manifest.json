@@ -1,0 +1,39 @@
+{
+    "name": "LDR情绪表达仪表板",
+    "short_name": "LDR情绪板",
+    "description": "帮助异地恋情侣表达和分享情绪的专业仪表板",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#f8fafc",
+    "theme_color": "#ff6b9d",
+    "orientation": "portrait-primary",
+    "categories": ["lifestyle", "social", "utilities"],
+    "lang": "zh-CN",
+    "icons": [
+        {
+            "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgdmlld0JveD0iMCAwIDE5MiAxOTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxOTIiIGhlaWdodD0iMTkyIiByeD0iMjQiIGZpbGw9InVybCgjZ3JhZGllbnQwX2xpbmVhcl8xXzEpIi8+CjxwYXRoIGQ9Ik05NiA2NEMyOC42NTM2IDY0IDI4LjY1MzYgMTI4IDk2IDEyOEMxNjMuMzQ2IDEyOCAxNjMuMzQ2IDY0IDk2IDY0WiIgZmlsbD0id2hpdGUiLz4KPHA+dGggZD0iTTk2IDQ4QzEwNS4yOCA0OCAxMTIgNTQuNzIgMTEyIDY0VjEyOEMxMTIgMTM3LjI4IDEwNS4yOCAxNDQgOTYgMTQ0Qzg2LjcyIDE0NCA4MCAxMzcuMjggODAgMTI4VjY0QzgwIDU0LjcyIDg2LjcyIDQ4IDk2IDQ4WiIgZmlsbD0id2hpdGUiLz4KPHA+dGggZD0iTTY0IDk2QzY0IDEwNS4yOCA3MC43MiAxMTIgODAgMTEySDExMkMxMjEuMjggMTEyIDEyOCAxMDUuMjggMTI4IDk2Qzk2IDk2IDk2IDk2IDY0IDk2WiIgZmlsbD0id2hpdGUiLz4KPHA+dGggZD0iTTk2IDMyQzEyMy43MTIgMzIgMTQ2IDU0LjI4OCAxNDYgODJWMTEwQzE0NiAxMzcuNzEyIDEyMy43MTIgMTYwIDk2IDE2MEM2OC4yODggMTYwIDQ2IDEzNy43MTIgNDYgMTEwVjgyQzQ2IDU0LjI4OCA2OC4yODggMzIgOTYgMzJaIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjgiIGZpbGw9Im5vbmUiLz4KPGRlZnM+CjxsaW5lYXJHcmFkaWVudCBpZD0iZ3JhZGllbnQwX2xpbmVhcl8xXzEiIHgxPSIwIiB5MT0iMCIgeDI9IjE5MiIgeTI9IjE5MiIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPgo8c3RvcCBzdG9wLWNvbG9yPSIjZmY2YjlkIi8+CjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzRlY2RjNCIvPgo8L2xpbmVhckdyYWRpZW50Pgo8L2RlZnM+Cjwvc3ZnPgo=",
+            "sizes": "192x192",
+            "type": "image/svg+xml",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgdmlld0JveD0iMCAwIDUxMiA1MTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIiByeD0iNjQiIGZpbGw9InVybCgjZ3JhZGllbnQwX2xpbmVhcl8xXzEpIi8+CjxwYXRoIGQ9Ik0yNTYgMTcwQzc2LjM0NzIgMTcwIDc2LjM0NzIgMzQyIDI1NiAzNDJDNDM1LjY1MyAzNDIgNDM1LjY1MyAxNzAgMjU2IDE3MFoiIGZpbGw9IndoaXRlIi8+CjxwYXRoIGQ9Ik0yNTYgMTI4QzI4MC44MDEgMTI4IDMwMCAxNDcuMTk5IDMwMCAxNzJWMzQyQzMwMCAzNjYuODAxIDI4MC44MDEgMzg2IDI1NiAzODZDMjMxLjE5OSAzODYgMjEyIDM2Ni44MDEgMjEyIDM0MlYxNzJDMjEyIDE0Ny4xOTkgMjMxLjE5OSAxMjggMjU2IDEyOFoiIGZpbGw9IndoaXRlIi8+CjxwYXRoIGQ9Ik0xNzAgMjU2QzE3MCAyODAuODAxIDE4OS4xOTkgMzAwIDIxNCAzMDBIMjk4QzMyMi44MDEgMzAwIDM0MiAyODAuODAxIDM0MiAyNTZDMjU2IDI1NiAyNTYgMjU2IDE3MCAyNTZaIiBmaWxsPSJ3aGl0ZSIvPgo8cGF0aCBkPSJNMjU2IDg1QzMzMC4yNTUgODUgMzkwIDEzNC43NDUgMzkwIDIwNlYyOTRDMzkwIDM2NS4yNTUgMzMwLjI1NSA0MjcgMjU2IDQyN0MxODEuNzQ1IDQyNyAxMjIgMzY1LjI1NSAxMjIgMjk0VjIwNkMxMjIgMTM0Ljc0NSAxODEuNzQ1IDg1IDI1NiA4NVoiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iMjAiIGZpbGw9Im5vbmUiLz4KPGRlZnM+CjxsaW5lYXJHcmFkaWVudCBpZD0iZ3JhZGllbnQwX2xpbmVhcl8xXzEiIHgxPSIwIiB5MT0iMCIgeDI9IjUxMiIgeTI9IjUxMiIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPgo8c3RvcCBzdG9wLWNvbG9yPSIjZmY2YjlkIi8+CjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzRlY2RjNCIvPgo8L2xpbmVhckdyYWRpZW50Pgo8L2RlZnM+Cjwvc3ZnPgo=",
+            "sizes": "512x512",
+            "type": "image/svg+xml",
+            "purpose": "any maskable"
+        }
+    ],
+    "screenshots": [
+        {
+            "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTI4MCIgaGVpZ2h0PSI3MjAiIHZpZXdCb3g9IjAgMCAxMjgwIDcyMCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjEyODAiIGhlaWdodD0iNzIwIiBmaWxsPSIjZjhmYWZjIi8+CjxyZWN0IHg9IjQwIiB5PSI0MCIgd2lkdGg9IjEyMDAiIGhlaWdodD0iMTAwIiByeD0iMjAiIGZpbGw9InVybCgjZ3JhZGllbnQwX2xpbmVhcl8xXzEpIi8+Cjx0ZXh0IHg9IjY0MCIgeT0iMTAwIiBmaWxsPSJ3aGl0ZSIgZm9udC1mYW1pbHk9IkludGVyIiBmb250LXNpemU9IjM2IiBmb250LXdlaWdodD0iNzAwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5MRFLmg4Xnu6rkuK3ooajnpLrmnb/mnb88L3RleHQ+CjxyZWN0IHg9IjQwIiB5PSIxODAiIHdpZHRoPSI1ODAiIGhlaWdodD0iNTAwIiByeD0iMjAiIGZpbGw9IndoaXRlIiBzdHJva2U9IiNlMmU4ZjAiLz4KPHJlY3QgeD0iNjYwIiB5PSIxODAiIHdpZHRoPSI1ODAiIGhlaWdodD0iNTAwIiByeD0iMjAiIGZpbGw9IndoaXRlIiBzdHJva2U9IiNlMmU4ZjAiLz4KPHA+dGV4dCB4PSIzMzAiIHk9IjIyMCIgZmlsbD0iIzJkMzc0OCIgZm9udC1mYW1pbHk9IkludGVyIiBmb250LXNpemU9IjI0IiBmb250LXdlaWdodD0iNjAwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj7miJHnmoTmg4Xnu6o8L3RleHQ+CjxjaXJjbGUgY3g9IjMzMCIgY3k9IjM1MCIgcj0iNDAiIGZpbGw9IiNmZjZiOWQiLz4KPHA+dGV4dCB4PSIzMzAiIHk9IjM2MCIgZmlsbD0id2hpdGUiIGZvbnQtZmFtaWx5PSJJbnRlciIgZm9udC1zaXplPSIzMiIgdGV4dC1hbmNob3I9Im1pZGRsZSI+8J+YijwvdGV4dD4KPHA+dGV4dCB4PSI5NTAiIHk9IjIyMCIgZmlsbD0iIzJkMzc0OCIgZm9udC1mYW1pbHk9IkludGVyIiBmb250LXNpemU9IjI0IiBmb250LXdlaWdodD0iNjAwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5UYeeahOaDhee7qjwvdGV4dD4KPGNpcmNsZSBjeD0iOTUwIiBjeT0iMzUwIiByPSI0MCIgZmlsbD0iIzRlY2RjNCIvPgo8dGV4dCB4PSI5NTAiIHk9IjM2MCIgZmlsbD0id2hpdGUiIGZvbnQtZmFtaWx5PSJJbnRlciIgZm9udC1zaXplPSIzMiIgdGV4dC1hbmNob3I9Im1pZGRsZSI+8J+lsDwvdGV4dD4KPGRlZnM+CjxsaW5lYXJHcmFkaWVudCBpZD0iZ3JhZGllbnQwX2xpbmVhcl8xXzEiIHgxPSI0MCIgeTE9IjQwIiB4Mj0iMTI0MCIgeTI9IjE0MCIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPgo8c3RvcCBzdG9wLWNvbG9yPSIjZmY2YjlkIi8+CjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzRlY2RjNCIvPgo8L2xpbmVhckdyYWRpZW50Pgo8L2RlZnM+Cjwvc3ZnPgo=",
+            "sizes": "1280x720",
+            "type": "image/svg+xml",
+            "form_factor": "wide"
+        }
+    ],
+    "features": [
+        "Cross Platform",
+        "Offline Support",
+        "Real-time Updates"
+    ]
+}

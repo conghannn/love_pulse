@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> Love Pulse</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#ff6b9d">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="LDR情绪板">
+    <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgdmlld0JveD0iMCAwIDE5MiAxOTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxOTIiIGhlaWdodD0iMTkyIiByeD0iMjQiIGZpbGw9InVybCgjZ3JhZGllbnQwX2xpbmVhcl8xXzEpIi8+CjxwYXRoIGQ9Ik05NiA2NEMyOC42NTM2IDY0IDI4LjY1MzYgMTI4IDk2IDEyOEMxNjMuMzQ2IDEyOCAxNjMuMzQ2IDY0IDk2IDY0WiIgZmlsbD0id2hpdGUiLz4KPHA+dGggZD0iTTk2IDQ4QzEwNS4yOCA0OCAxMTIgNTQuNzIgMTEyIDY0VjEyOEMxMTIgMTM3LjI4IDEwNS4yOCAxNDQgOTYgMTQ0Qzg2LjcyIDE0NCA4MCAxMzcuMjggODAgMTI4VjY0QzgwIDU0LjcyIDg2LjcyIDQ4IDk2IDQ4WiIgZmlsbD0id2hpdGUiLz4KPHA+dGggZD0iTTY0IDk2QzY0IDEwNS4yOCA3MC43MiAxMTIgODAgMTEySDExMkMxMjEuMjggMTEyIDEyOCAxMDUuMjggMTI4IDk2Qzk2IDk2IDk2IDk2IDY0IDk2WiIgZmlsbD0id2hpdGUiLz4KPHA+dGggZD0iTTk2IDMyQzEyMy43MTIgMzIgMTQ2IDU0LjI4OCAxNDYgODJWMTEwQzE0NiAxMzcuNzEyIDEyMy43MTIgMTYwIDk2IDE2MEM2OC4yODggMTYwIDQ2IDEzNy43MTIgNDYgMTEwVjgyQzQ2IDU0LjI4OCA2OC4yODggMzIgOTYgMzJaIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjgiIGZpbGw9Im5vbmUiLz4KPGRlZnM+CjxsaW5lYXJHcmFkaWVudCBpZD0iZ3JhZGllbnQwX2xpbmVhcl8xXzEiIHgxPSIwIiB5MT0iMCIgeDI9IjE5MiIgeTI9IjE5MiIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPgo8c3RvcCBzdG9wLWNvbG9yPSIjZmY2YjlkIi8+CjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzRlY2RjNCIvPgo8L2xpbmVhckdyYWRpZW50Pgo8L2RlZnM+Cjwvc3ZnPgo=">
+</head>
+<body>
+    <div class="app-container">
+        <!-- 头部导航 -->
+        <header class="header">
+            <div class="header-content">
+                <div class="logo" style="display: flex; align-items: center; gap: 8px;">
+                    <i class="fas fa-heart" style="color: white;"></i>
+                  
+                    <h1 style="
+                      font-size: 32px;
+                      font-weight: 700;
+                      color: white;
+                      margin: 0;
+                    ">
+                      Love Pulse
+                    </h1>
+                  
+                    <span style="
+                      font-size: 18px;
+                      color: white;
+                      font-style: italic;
+                      opacity: 0.9;
+                      margin-left: 8px;
+                      transform: translateY(2px);
+                    ">
+                      by Lanyi & Cong
+                    </span>
+                  </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- 主要内容区域 -->
+        <main class="main-content">
+            <!-- 当前情绪表达区域 -->
+            <section class="mood-expression-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-smile"></i> 当前情绪</h2>
+                    <div class="last-updated" id="lastUpdated">
+                        最后更新: 刚刚
+                    </div>
+                </div>
+                
+                <div class="mood-cards">
+                    <div class="mood-card my-mood">
+                        <div class="mood-header">
+                            <h3>我的情绪</h3>
+                            <div class="mood-time">
+                                <div id="myLanyiTime">👩🏻‍🦰 Lanyi time — --:--</div>
+                                <div id="myCongTime">👨🏻‍🦱 Cong time — --:--</div>
+                            </div>                                                   
+                        </div>
+                        <div class="mood-display" id="myMoodDisplay">
+                            <div class="mood-emoji" id="myMoodEmoji">😊</div>
+                            <div class="mood-label" id="myMoodLabel">选择你的情绪</div>
+                        </div>
+                        <div class="mood-selector">
+                            <div class="mood-options" id="moodOptions">
+                                <button class="mood-btn" data-mood="happy" data-emoji="😊" data-label="开心">😊</button>
+                                <button class="mood-btn" data-mood="love" data-emoji="🥰" data-label="爱意满满">🥰</button>
+                                <button class="mood-btn" data-mood="excited" data-emoji="🤗" data-label="兴奋">🤗</button>
+                                <button class="mood-btn" data-mood="calm" data-emoji="😌" data-label="平静">😌</button>
+                                <button class="mood-btn" data-mood="sad" data-emoji="😢" data-label="难过">😢</button>
+                                <button class="mood-btn" data-mood="miss" data-emoji="🥺" data-label="想念">🥺</button>
+                                <button class="mood-btn" data-mood="tired" data-emoji="😴" data-label="疲惫">😴</button>
+                                <button class="mood-btn" data-mood="anxious" data-emoji="😰" data-label="焦虑">😰</button>
+                            </div>
+                        </div>
+                        <div class="mood-message">
+                            <textarea id="myMoodMessage" placeholder="想对Ta说些什么..."></textarea>
+                            <button class="send-btn" id="sendMoodBtn">
+                                <i class="fas fa-paper-plane"></i>
+                                发送情绪
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="mood-card partner-mood">
+                        <div class="mood-header">
+                            <h3>Ta的情绪</h3>
+                            <div class="mood-time" id="taMoodTime">
+                                <div>👩🏻‍🦰 Lanyi time — 11:39 PM</div>
+                                <div>👨🏻 Cong time — 7:39 AM</div>
+                            </div>                            
+                        </div>
+                        <div class="mood-display" id="partnerMoodDisplay">
+                            <div class="mood-emoji" id="partnerMoodEmoji">❓</div>
+                            <div class="mood-label" id="partnerMoodLabel">等待Ta分享情绪</div>
+                        </div>
+                        <div class="partner-message" id="partnerMessage">
+                            <p>还没有收到Ta的消息...</p>
+                        </div>
+                        <div class="response-section">
+                            <button class="response-btn" id="sendHugBtn">
+                                <i class="fas fa-heart"></i>
+                                发送拥抱
+                            </button>
+                            <button class="response-btn" id="sendKissBtn">
+                                <i class="fas fa-kiss-wink-heart"></i>
+                                发送亲亲
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 情绪统计和历史 -->
+            <section class="stats-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-chart-line"></i> 情绪统计</h2>
+                    <div class="time-filter">
+                        <button class="filter-btn active" data-period="today">今天</button>
+                        <button class="filter-btn" data-period="week">本周</button>
+                        <button class="filter-btn" data-period="month">本月</button>
+                    </div>
+                </div>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <h3>情绪分布</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="moodChart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <h3>互动统计</h3>
+                        </div>
+                        <div class="interaction-stats">
+                            <div class="stat-item">
+                                <div class="stat-icon">💌</div>
+                                <div class="stat-info">
+                                    <div class="stat-number" id="messagesCount">0</div>
+                                    <div class="stat-label">今日消息</div>
+                                </div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-icon">🤗</div>
+                                <div class="stat-info">
+                                    <div class="stat-number" id="hugsCount">0</div>
+                                    <div class="stat-label">拥抱次数</div>
+                                </div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-icon">💋</div>
+                                <div class="stat-info">
+                                    <div class="stat-number" id="kissesCount">0</div>
+                                    <div class="stat-label">亲亲次数</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 情绪历史记录 -->
+            <section class="history-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-history"></i> 情绪历史</h2>
+                    <button class="clear-btn" id="clearHistoryBtn">
+                        <i class="fas fa-trash"></i>
+                        清空历史
+                    </button>
+                </div>
+                
+                <div class="history-timeline" id="historyTimeline">
+                    <!-- 历史记录将通过JavaScript动态生成 -->
+                </div>
+            </section>
+
+            <!-- 设置面板 -->
+            <section class="settings-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-cog"></i> 设置</h2>
+                </div>
+                
+                <div class="settings-grid">
+                    <div class="setting-item">
+                        <label for="partnerNameInput">伴侣昵称</label>
+                        <input type="text" id="partnerNameInput" placeholder="输入Ta的昵称">
+                    </div>
+                    
+                    <div class="setting-item">
+                        <label for="notificationToggle">消息通知</label>
+                        <div class="toggle-switch">
+                            <input type="checkbox" id="notificationToggle" checked>
+                            <span class="slider"></span>
+                        </div>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <label for="themeSelect">主题选择</label>
+                        <select id="themeSelect">
+                            <option value="light">浅色主题</option>
+                            <option value="dark">深色主题</option>
+                            <option value="romantic">浪漫主题</option>
+                        </select>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <label for="autoSaveToggle">自动保存</label>
+                        <div class="toggle-switch">
+                            <input type="checkbox" id="autoSaveToggle" checked>
+                            <span class="slider"></span>
+                        </div>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <label>数据管理</label>
+                        <div class="data-management">
+                            <button class="data-btn export-btn" onclick="exportData()">
+                                <i class="fas fa-download"></i>
+                                导出数据
+                            </button>
+                            <input type="file" id="importFile" accept=".json" onchange="importData(event)" style="display: none;">
+                            <button class="data-btn import-btn" onclick="document.getElementById('importFile').click()">
+                                <i class="fas fa-upload"></i>
+                                导入数据
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <label>应用信息</label>
+                        <div class="app-info">
+                            <p><strong>版本:</strong> 1.0.0</p>
+                            <p><strong>更新:</strong> 2024年11月</p>
+                            <p><strong>快捷键:</strong> 按F1查看帮助</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- 情绪动画效果 -->
+        <div class="mood-animation" id="moodAnimation">
+            <div class="hearts">
+                <div class="heart"></div>
+                <div class="heart"></div>
+                <div class="heart"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,21 @@
+{
+  "name": "ldr-mood-expression-dashboard",
+  "version": "1.0.0",
+  "description": "LDR情绪表达仪表板 - 帮助异地恋情侣表达和分享情绪",
+  "main": "index.html",
+  "scripts": {
+    "start": "live-server --port=3000",
+    "dev": "live-server --port=3000 --watch=.",
+    "build": "echo 'Build complete'"
+  },
+  "keywords": ["LDR", "mood", "dashboard", "emotion", "relationship"],
+  "author": "Your Name",
+  "license": "MIT",
+  "devDependencies": {
+    "live-server": "^1.2.2"
+  },
+  "dependencies": {
+    "chart.js": "^4.4.0",
+    "date-fns": "^2.30.0"
+  }
+}
