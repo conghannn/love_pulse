@@ -57,39 +57,67 @@ class LDRMoodDashboard {
             moodOptionsContainer.dataset.listenerAttached = 'true';
         }
 
-        // 发送情绪按钮 - prevent multiple clicks
+        // 发送情绪按钮 - prevent multiple clicks with better debouncing
         const sendMoodBtn = document.getElementById('sendMoodBtn');
         if (sendMoodBtn && !sendMoodBtn.dataset.listenerAttached) {
             sendMoodBtn.addEventListener('click', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                if (sendMoodBtn.dataset.processing !== 'true') {
-                    sendMoodBtn.dataset.processing = 'true';
-                    this.sendMood().finally(() => {
-                        setTimeout(() => {
-                            sendMoodBtn.dataset.processing = 'false';
-                        }, 1000);
-                    });
+                e.stopImmediatePropagation();
+                
+                // Check both button state and class state
+                if (sendMoodBtn.disabled || sendMoodBtn.dataset.processing === 'true' || this.sendingMood) {
+                    return;
                 }
-            });
+                
+                // Immediately disable button and set flags
+                sendMoodBtn.disabled = true;
+                sendMoodBtn.dataset.processing = 'true';
+                sendMoodBtn.style.opacity = '0.6';
+                sendMoodBtn.style.cursor = 'not-allowed';
+                
+                this.sendMood().finally(() => {
+                    // Re-enable button after operation completes
+                    setTimeout(() => {
+                        sendMoodBtn.disabled = false;
+                        sendMoodBtn.dataset.processing = 'false';
+                        sendMoodBtn.style.opacity = '1';
+                        sendMoodBtn.style.cursor = 'pointer';
+                    }, 500);
+                });
+            }, { once: false, passive: false });
             sendMoodBtn.dataset.listenerAttached = 'true';
         }
 
-        // 响应按钮 - prevent multiple clicks
+        // 响应按钮 - prevent multiple clicks with better debouncing
         const sendHugBtn = document.getElementById('sendHugBtn');
         if (sendHugBtn && !sendHugBtn.dataset.listenerAttached) {
             sendHugBtn.addEventListener('click', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                if (sendHugBtn.dataset.processing !== 'true') {
-                    sendHugBtn.dataset.processing = 'true';
-                    this.sendResponse('hug', '🤗', '发送了一个温暖的拥抱').finally(() => {
-                        setTimeout(() => {
-                            sendHugBtn.dataset.processing = 'false';
-                        }, 1000);
-                    });
+                e.stopImmediatePropagation();
+                
+                // Check both button state and class state
+                if (sendHugBtn.disabled || sendHugBtn.dataset.processing === 'true' || this.sendingResponse) {
+                    return;
                 }
-            });
+                
+                // Immediately disable button and set flags
+                sendHugBtn.disabled = true;
+                sendHugBtn.dataset.processing = 'true';
+                sendHugBtn.style.opacity = '0.6';
+                sendHugBtn.style.cursor = 'not-allowed';
+                
+                this.sendResponse('hug', '🤗', '发送了一个温暖的拥抱').finally(() => {
+                    // Re-enable button after operation completes
+                    setTimeout(() => {
+                        sendHugBtn.disabled = false;
+                        sendHugBtn.dataset.processing = 'false';
+                        sendHugBtn.style.opacity = '1';
+                        sendHugBtn.style.cursor = 'pointer';
+                    }, 500);
+                });
+            }, { once: false, passive: false });
             sendHugBtn.dataset.listenerAttached = 'true';
         }
 
@@ -98,15 +126,29 @@ class LDRMoodDashboard {
             sendKissBtn.addEventListener('click', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                if (sendKissBtn.dataset.processing !== 'true') {
-                    sendKissBtn.dataset.processing = 'true';
-                    this.sendResponse('kiss', '💋', '发送了一个甜蜜的亲亲').finally(() => {
-                        setTimeout(() => {
-                            sendKissBtn.dataset.processing = 'false';
-                        }, 1000);
-                    });
+                e.stopImmediatePropagation();
+                
+                // Check both button state and class state
+                if (sendKissBtn.disabled || sendKissBtn.dataset.processing === 'true' || this.sendingResponse) {
+                    return;
                 }
-            });
+                
+                // Immediately disable button and set flags
+                sendKissBtn.disabled = true;
+                sendKissBtn.dataset.processing = 'true';
+                sendKissBtn.style.opacity = '0.6';
+                sendKissBtn.style.cursor = 'not-allowed';
+                
+                this.sendResponse('kiss', '💋', '发送了一个甜蜜的亲亲').finally(() => {
+                    // Re-enable button after operation completes
+                    setTimeout(() => {
+                        sendKissBtn.disabled = false;
+                        sendKissBtn.dataset.processing = 'false';
+                        sendKissBtn.style.opacity = '1';
+                        sendKissBtn.style.cursor = 'pointer';
+                    }, 500);
+                });
+            }, { once: false, passive: false });
             sendKissBtn.dataset.listenerAttached = 'true';
         }
 
@@ -261,96 +303,101 @@ class LDRMoodDashboard {
     }
 
     async sendMood() {
-        // Prevent multiple simultaneous sends
+        // Prevent multiple simultaneous sends - double check
         if (this.sendingMood) {
+            console.log('Send mood already in progress, ignoring duplicate call');
             return;
         }
         this.sendingMood = true;
 
-        if (!this.currentMood) {
-            this.showNotification('⚠️', '请先选择一个情绪！', 'warning');
-            this.sendingMood = false;
-            return;
-        }
-
-        const message = document.getElementById('myMoodMessage').value.trim();
-        
-        const moodData = {
-            ...this.currentMood,
-            message: message,
-            timestamp: new Date(),
-            type: 'mood',
-            sender: this.settings.userId
-        };
-
-        // Save to localStorage first (for offline support)
-        this.moodHistory.unshift(moodData);
-        this.saveData();
-
-        // 清空消息输入框
-        document.getElementById('myMoodMessage').value = '';
-
-        // Recalculate stats from history (more accurate)
-        this.recalculateStats();
-
-        // 更新显示
-        this.updateStats();
-        this.renderHistory();
-        this.updateChart();
-
-        // Sync to server
         try {
-            await this.syncMoodToServer(moodData);
-        this.showNotification('💕', '情绪已发送给Ta！', 'success');
-        } catch (error) {
-            console.error('Failed to sync mood:', error);
-            this.showNotification('⚠️', '情绪已保存，但同步失败。请检查网络连接。', 'warning');
+            if (!this.currentMood) {
+                this.showNotification('⚠️', '请先选择一个情绪！', 'warning');
+                return;
+            }
+
+            const message = document.getElementById('myMoodMessage').value.trim();
+            
+            const moodData = {
+                ...this.currentMood,
+                message: message,
+                timestamp: new Date(),
+                type: 'mood',
+                sender: this.settings.userId
+            };
+
+            // Save to localStorage first (for offline support)
+            this.moodHistory.unshift(moodData);
+            this.saveData();
+
+            // 清空消息输入框
+            document.getElementById('myMoodMessage').value = '';
+
+            // Recalculate stats from history (more accurate)
+            this.recalculateStats();
+
+            // 更新显示
+            this.updateStats();
+            this.renderHistory();
+            this.updateChart();
+
+            // Sync to server
+            try {
+                await this.syncMoodToServer(moodData);
+                this.showNotification('💕', '情绪已发送给Ta！', 'success');
+            } catch (error) {
+                console.error('Failed to sync mood:', error);
+                this.showNotification('⚠️', '情绪已保存，但同步失败。请检查网络连接。', 'warning');
+            }
+
+            // 播放发送动画
+            this.playMoodAnimation();
+        } finally {
+            // Always reset sending flag, even if there was an error
+            this.sendingMood = false;
         }
-
-        // 播放发送动画
-        this.playMoodAnimation();
-
-        // Reset sending flag
-        this.sendingMood = false;
     }
 
     async sendResponse(type, emoji, message) {
-        // Prevent multiple simultaneous sends
+        // Prevent multiple simultaneous sends - double check
         if (this.sendingResponse) {
+            console.log('Send response already in progress, ignoring duplicate call');
             return;
         }
         this.sendingResponse = true;
 
-        const responseData = {
-            type: 'response',
-            responseType: type,
-            emoji: emoji,
-            message: message,
-            timestamp: new Date(),
-            sender: this.settings.userId
-        };
-
-        this.moodHistory.unshift(responseData);
-        
-        // Recalculate stats from history (more accurate)
-        this.recalculateStats();
-
-        this.saveData();
-        this.updateStats();
-        this.renderHistory();
-
-        // Sync to server
         try {
-            await this.syncMoodToServer(responseData);
-        } catch (error) {
-            console.error('Failed to sync response:', error);
-        }
+            const responseData = {
+                type: 'response',
+                responseType: type,
+                emoji: emoji,
+                message: message,
+                timestamp: new Date(),
+                sender: this.settings.userId
+            };
 
-        this.showNotification(emoji, message, 'success');
-        this.playMoodAnimation();
-        
-        // Reset sending flag
-        this.sendingResponse = false;
+            this.moodHistory.unshift(responseData);
+            
+            // Recalculate stats from history (more accurate)
+            this.recalculateStats();
+
+            this.saveData();
+            this.updateStats();
+            this.renderHistory();
+
+            // Sync to server
+            try {
+                await this.syncMoodToServer(responseData);
+            } catch (error) {
+                console.error('Failed to sync response:', error);
+            }
+
+            this.showNotification(emoji, message, 'success');
+            this.playMoodAnimation();
+        } finally {
+            // Always reset sending flag, even if there was an error
+            this.sendingResponse = false;
+        }
     }
 
     // API Methods
