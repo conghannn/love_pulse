@@ -25,6 +25,10 @@ class LDRMoodDashboard {
         this.syncInterval = null;
         this.lastSyncTime = null;
         
+        // Debounce timestamps for preventing rapid clicks
+        this.lastClickTime = {};
+        this.clickDebounceMs = 1000; // 1 second debounce
+        
         this.init();
     }
 
@@ -57,99 +61,153 @@ class LDRMoodDashboard {
             moodOptionsContainer.dataset.listenerAttached = 'true';
         }
 
-        // 发送情绪按钮 - prevent multiple clicks with better debouncing
+        // 发送情绪按钮 - prevent multiple clicks with timestamp-based debouncing
         const sendMoodBtn = document.getElementById('sendMoodBtn');
-        if (sendMoodBtn && !sendMoodBtn.dataset.listenerAttached) {
-            sendMoodBtn.addEventListener('click', (e) => {
+        if (sendMoodBtn) {
+            // Remove any existing listener first
+            const newSendMoodBtn = sendMoodBtn.cloneNode(true);
+            sendMoodBtn.parentNode.replaceChild(newSendMoodBtn, sendMoodBtn);
+            
+            newSendMoodBtn.addEventListener('click', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
                 e.stopImmediatePropagation();
                 
-                // Check both button state and class state
-                if (sendMoodBtn.disabled || sendMoodBtn.dataset.processing === 'true' || this.sendingMood) {
+                const now = Date.now();
+                const lastClick = this.lastClickTime['sendMood'] || 0;
+                
+                // Check timestamp-based debounce
+                if (now - lastClick < this.clickDebounceMs) {
+                    console.log('Click debounced - too soon after last click');
                     return;
                 }
                 
+                // Check both button state and class state
+                if (newSendMoodBtn.disabled || newSendMoodBtn.dataset.processing === 'true' || this.sendingMood) {
+                    console.log('Button already processing');
+                    return;
+                }
+                
+                // Update timestamp immediately
+                this.lastClickTime['sendMood'] = now;
+                
                 // Immediately disable button and set flags
-                sendMoodBtn.disabled = true;
-                sendMoodBtn.dataset.processing = 'true';
-                sendMoodBtn.style.opacity = '0.6';
-                sendMoodBtn.style.cursor = 'not-allowed';
+                newSendMoodBtn.disabled = true;
+                newSendMoodBtn.dataset.processing = 'true';
+                newSendMoodBtn.style.opacity = '0.6';
+                newSendMoodBtn.style.cursor = 'not-allowed';
+                newSendMoodBtn.style.pointerEvents = 'none';
                 
                 this.sendMood().finally(() => {
                     // Re-enable button after operation completes
                     setTimeout(() => {
-                        sendMoodBtn.disabled = false;
-                        sendMoodBtn.dataset.processing = 'false';
-                        sendMoodBtn.style.opacity = '1';
-                        sendMoodBtn.style.cursor = 'pointer';
+                        newSendMoodBtn.disabled = false;
+                        newSendMoodBtn.dataset.processing = 'false';
+                        newSendMoodBtn.style.opacity = '1';
+                        newSendMoodBtn.style.cursor = 'pointer';
+                        newSendMoodBtn.style.pointerEvents = 'auto';
                     }, 500);
                 });
-            }, { once: false, passive: false });
-            sendMoodBtn.dataset.listenerAttached = 'true';
+            }, { once: false, passive: false, capture: true });
         }
 
-        // 响应按钮 - prevent multiple clicks with better debouncing
+        // 响应按钮 - prevent multiple clicks with timestamp-based debouncing
         const sendHugBtn = document.getElementById('sendHugBtn');
-        if (sendHugBtn && !sendHugBtn.dataset.listenerAttached) {
-            sendHugBtn.addEventListener('click', (e) => {
+        if (sendHugBtn) {
+            // Remove any existing listener first
+            const newSendHugBtn = sendHugBtn.cloneNode(true);
+            sendHugBtn.parentNode.replaceChild(newSendHugBtn, sendHugBtn);
+            
+            newSendHugBtn.addEventListener('click', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
                 e.stopImmediatePropagation();
                 
-                // Check both button state and class state
-                if (sendHugBtn.disabled || sendHugBtn.dataset.processing === 'true' || this.sendingResponse) {
+                const now = Date.now();
+                const lastClick = this.lastClickTime['sendHug'] || 0;
+                
+                // Check timestamp-based debounce
+                if (now - lastClick < this.clickDebounceMs) {
+                    console.log('Click debounced - too soon after last click');
                     return;
                 }
                 
+                // Check both button state and class state
+                if (newSendHugBtn.disabled || newSendHugBtn.dataset.processing === 'true' || this.sendingResponse) {
+                    console.log('Button already processing');
+                    return;
+                }
+                
+                // Update timestamp immediately
+                this.lastClickTime['sendHug'] = now;
+                
                 // Immediately disable button and set flags
-                sendHugBtn.disabled = true;
-                sendHugBtn.dataset.processing = 'true';
-                sendHugBtn.style.opacity = '0.6';
-                sendHugBtn.style.cursor = 'not-allowed';
+                newSendHugBtn.disabled = true;
+                newSendHugBtn.dataset.processing = 'true';
+                newSendHugBtn.style.opacity = '0.6';
+                newSendHugBtn.style.cursor = 'not-allowed';
+                newSendHugBtn.style.pointerEvents = 'none';
                 
                 this.sendResponse('hug', '🤗', '发送了一个温暖的拥抱').finally(() => {
                     // Re-enable button after operation completes
                     setTimeout(() => {
-                        sendHugBtn.disabled = false;
-                        sendHugBtn.dataset.processing = 'false';
-                        sendHugBtn.style.opacity = '1';
-                        sendHugBtn.style.cursor = 'pointer';
+                        newSendHugBtn.disabled = false;
+                        newSendHugBtn.dataset.processing = 'false';
+                        newSendHugBtn.style.opacity = '1';
+                        newSendHugBtn.style.cursor = 'pointer';
+                        newSendHugBtn.style.pointerEvents = 'auto';
                     }, 500);
                 });
-            }, { once: false, passive: false });
-            sendHugBtn.dataset.listenerAttached = 'true';
+            }, { once: false, passive: false, capture: true });
         }
 
         const sendKissBtn = document.getElementById('sendKissBtn');
-        if (sendKissBtn && !sendKissBtn.dataset.listenerAttached) {
-            sendKissBtn.addEventListener('click', (e) => {
+        if (sendKissBtn) {
+            // Remove any existing listener first
+            const newSendKissBtn = sendKissBtn.cloneNode(true);
+            sendKissBtn.parentNode.replaceChild(newSendKissBtn, sendKissBtn);
+            
+            newSendKissBtn.addEventListener('click', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
                 e.stopImmediatePropagation();
                 
-                // Check both button state and class state
-                if (sendKissBtn.disabled || sendKissBtn.dataset.processing === 'true' || this.sendingResponse) {
+                const now = Date.now();
+                const lastClick = this.lastClickTime['sendKiss'] || 0;
+                
+                // Check timestamp-based debounce
+                if (now - lastClick < this.clickDebounceMs) {
+                    console.log('Click debounced - too soon after last click');
                     return;
                 }
                 
+                // Check both button state and class state
+                if (newSendKissBtn.disabled || newSendKissBtn.dataset.processing === 'true' || this.sendingResponse) {
+                    console.log('Button already processing');
+                    return;
+                }
+                
+                // Update timestamp immediately
+                this.lastClickTime['sendKiss'] = now;
+                
                 // Immediately disable button and set flags
-                sendKissBtn.disabled = true;
-                sendKissBtn.dataset.processing = 'true';
-                sendKissBtn.style.opacity = '0.6';
-                sendKissBtn.style.cursor = 'not-allowed';
+                newSendKissBtn.disabled = true;
+                newSendKissBtn.dataset.processing = 'true';
+                newSendKissBtn.style.opacity = '0.6';
+                newSendKissBtn.style.cursor = 'not-allowed';
+                newSendKissBtn.style.pointerEvents = 'none';
                 
                 this.sendResponse('kiss', '💋', '发送了一个甜蜜的亲亲').finally(() => {
                     // Re-enable button after operation completes
                     setTimeout(() => {
-                        sendKissBtn.disabled = false;
-                        sendKissBtn.dataset.processing = 'false';
-                        sendKissBtn.style.opacity = '1';
-                        sendKissBtn.style.cursor = 'pointer';
+                        newSendKissBtn.disabled = false;
+                        newSendKissBtn.dataset.processing = 'false';
+                        newSendKissBtn.style.opacity = '1';
+                        newSendKissBtn.style.cursor = 'pointer';
+                        newSendKissBtn.style.pointerEvents = 'auto';
                     }, 500);
                 });
-            }, { once: false, passive: false });
-            sendKissBtn.dataset.listenerAttached = 'true';
+            }, { once: false, passive: false, capture: true });
         }
 
         // 时间筛选按钮
@@ -303,12 +361,18 @@ class LDRMoodDashboard {
     }
 
     async sendMood() {
-        // Prevent multiple simultaneous sends - double check
+        // Prevent multiple simultaneous sends - triple check with timestamp
+        const now = Date.now();
         if (this.sendingMood) {
             console.log('Send mood already in progress, ignoring duplicate call');
             return;
         }
+        if (this.lastClickTime['sendMood'] && (now - this.lastClickTime['sendMood']) < this.clickDebounceMs) {
+            console.log('Send mood debounced - too soon');
+            return;
+        }
         this.sendingMood = true;
+        this.lastClickTime['sendMood'] = now;
 
         try {
             if (!this.currentMood) {
@@ -359,12 +423,20 @@ class LDRMoodDashboard {
     }
 
     async sendResponse(type, emoji, message) {
-        // Prevent multiple simultaneous sends - double check
+        // Prevent multiple simultaneous sends - triple check with timestamp
+        const now = Date.now();
+        const buttonKey = type === 'hug' ? 'sendHug' : 'sendKiss';
+        
         if (this.sendingResponse) {
             console.log('Send response already in progress, ignoring duplicate call');
             return;
         }
+        if (this.lastClickTime[buttonKey] && (now - this.lastClickTime[buttonKey]) < this.clickDebounceMs) {
+            console.log('Send response debounced - too soon');
+            return;
+        }
         this.sendingResponse = true;
+        this.lastClickTime[buttonKey] = now;
 
         try {
             const responseData = {
