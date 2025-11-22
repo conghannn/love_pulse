@@ -25,10 +25,9 @@ class LDRMoodDashboard {
         this.syncInterval = null;
         this.lastSyncTime = null;
         
-        // Debounce timestamps for preventing rapid clicks
-        this.lastClickTime = {};
-        this.clickDebounceMs = 2000; // 2 second debounce
-        this.isProcessing = false; // Global processing lock
+        // Simple debounce for preventing rapid clicks
+        this.lastActionTime = 0;
+        this.debounceDelay = 800; // 800ms debounce
         
         this.init();
     }
@@ -62,170 +61,145 @@ class LDRMoodDashboard {
             moodOptionsContainer.dataset.listenerAttached = 'true';
         }
 
-        // 发送情绪按钮 - prevent multiple clicks with robust debouncing
-        const sendMoodBtn = document.getElementById('sendMoodBtn');
-        if (sendMoodBtn && !sendMoodBtn.dataset.listenerAttached) {
-            const handleClick = (e) => {
+        // 发送情绪按钮 - simple and reliable
+        let sendMoodBtn = document.getElementById('sendMoodBtn');
+        if (sendMoodBtn) {
+            // Remove old listener if exists by cloning
+            if (sendMoodBtn.dataset.listenerAttached) {
+                const newBtn = sendMoodBtn.cloneNode(true);
+                sendMoodBtn.parentNode.replaceChild(newBtn, sendMoodBtn);
+                sendMoodBtn = newBtn;
+            }
+            
+            sendMoodBtn.addEventListener('click', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
                 
                 const now = Date.now();
-                const lastClick = this.lastClickTime['sendMood'] || 0;
-                const timeSinceLastClick = now - lastClick;
                 
-                // Strict debounce check - must wait full debounce period
-                if (timeSinceLastClick < this.clickDebounceMs) {
-                    console.log(`Debounced: ${timeSinceLastClick}ms since last click`);
-                    return false;
+                // Simple debounce check
+                if (now - this.lastActionTime < this.debounceDelay) {
+                    return;
                 }
                 
-                // Check global processing lock
-                if (this.isProcessing || this.sendingMood) {
-                    console.log('Already processing, ignoring click');
-                    return false;
+                // Check if already processing
+                if (this.sendingMood) {
+                    return;
                 }
                 
-                // Check button state
-                if (sendMoodBtn.disabled) {
-                    return false;
-                }
-                
-                // Lock everything immediately
-                this.isProcessing = true;
+                // Set timestamp and flag immediately
+                this.lastActionTime = now;
                 this.sendingMood = true;
-                this.lastClickTime['sendMood'] = now;
                 
-                // Disable button immediately
-                sendMoodBtn.disabled = true;
+                // Visual feedback
+                const originalOpacity = sendMoodBtn.style.opacity;
                 sendMoodBtn.style.opacity = '0.6';
-                sendMoodBtn.style.cursor = 'not-allowed';
-                sendMoodBtn.style.pointerEvents = 'none';
+                sendMoodBtn.disabled = true;
                 
-                // Execute the action
+                // Execute
                 this.sendMood().finally(() => {
-                    // Re-enable after a delay
+                    // Always reset after operation
                     setTimeout(() => {
-                        this.isProcessing = false;
+                        this.sendingMood = false;
                         sendMoodBtn.disabled = false;
-                        sendMoodBtn.style.opacity = '1';
-                        sendMoodBtn.style.cursor = 'pointer';
-                        sendMoodBtn.style.pointerEvents = 'auto';
-                    }, 500);
+                        sendMoodBtn.style.opacity = originalOpacity || '1';
+                    }, 300);
                 });
-                
-                return false;
-            };
+            });
             
-            sendMoodBtn.addEventListener('click', handleClick, { passive: false });
             sendMoodBtn.dataset.listenerAttached = 'true';
         }
 
-        // 响应按钮 - prevent multiple clicks with robust debouncing
-        const sendHugBtn = document.getElementById('sendHugBtn');
-        if (sendHugBtn && !sendHugBtn.dataset.listenerAttached) {
-            const handleHugClick = (e) => {
+        // 响应按钮 - simple and reliable
+        let sendHugBtn = document.getElementById('sendHugBtn');
+        if (sendHugBtn) {
+            if (sendHugBtn.dataset.listenerAttached) {
+                const newBtn = sendHugBtn.cloneNode(true);
+                sendHugBtn.parentNode.replaceChild(newBtn, sendHugBtn);
+                sendHugBtn = newBtn;
+            }
+            
+            sendHugBtn.addEventListener('click', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
                 
                 const now = Date.now();
-                const lastClick = this.lastClickTime['sendHug'] || 0;
-                const timeSinceLastClick = now - lastClick;
                 
-                // Strict debounce check
-                if (timeSinceLastClick < this.clickDebounceMs) {
-                    return false;
+                // Simple debounce check
+                if (now - this.lastActionTime < this.debounceDelay) {
+                    return;
                 }
                 
-                // Check global processing lock
-                if (this.isProcessing || this.sendingResponse) {
-                    return false;
+                // Check if already processing
+                if (this.sendingResponse) {
+                    return;
                 }
                 
-                // Check button state
-                if (sendHugBtn.disabled) {
-                    return false;
-                }
-                
-                // Lock everything immediately
-                this.isProcessing = true;
+                // Set timestamp and flag immediately
+                this.lastActionTime = now;
                 this.sendingResponse = true;
-                this.lastClickTime['sendHug'] = now;
                 
-                // Disable button immediately
-                sendHugBtn.disabled = true;
+                // Visual feedback
+                const originalOpacity = sendHugBtn.style.opacity;
                 sendHugBtn.style.opacity = '0.6';
-                sendHugBtn.style.cursor = 'not-allowed';
-                sendHugBtn.style.pointerEvents = 'none';
+                sendHugBtn.disabled = true;
                 
-                // Execute the action
+                // Execute
                 this.sendResponse('hug', '🤗', '发送了一个温暖的拥抱').finally(() => {
                     setTimeout(() => {
-                        this.isProcessing = false;
+                        this.sendingResponse = false;
                         sendHugBtn.disabled = false;
-                        sendHugBtn.style.opacity = '1';
-                        sendHugBtn.style.cursor = 'pointer';
-                        sendHugBtn.style.pointerEvents = 'auto';
-                    }, 500);
+                        sendHugBtn.style.opacity = originalOpacity || '1';
+                    }, 300);
                 });
-                
-                return false;
-            };
+            });
             
-            sendHugBtn.addEventListener('click', handleHugClick, { passive: false });
             sendHugBtn.dataset.listenerAttached = 'true';
         }
 
-        const sendKissBtn = document.getElementById('sendKissBtn');
-        if (sendKissBtn && !sendKissBtn.dataset.listenerAttached) {
-            const handleKissClick = (e) => {
+        let sendKissBtn = document.getElementById('sendKissBtn');
+        if (sendKissBtn) {
+            if (sendKissBtn.dataset.listenerAttached) {
+                const newBtn = sendKissBtn.cloneNode(true);
+                sendKissBtn.parentNode.replaceChild(newBtn, sendKissBtn);
+                sendKissBtn = newBtn;
+            }
+            
+            sendKissBtn.addEventListener('click', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
                 
                 const now = Date.now();
-                const lastClick = this.lastClickTime['sendKiss'] || 0;
-                const timeSinceLastClick = now - lastClick;
                 
-                // Strict debounce check
-                if (timeSinceLastClick < this.clickDebounceMs) {
-                    return false;
+                // Simple debounce check
+                if (now - this.lastActionTime < this.debounceDelay) {
+                    return;
                 }
                 
-                // Check global processing lock
-                if (this.isProcessing || this.sendingResponse) {
-                    return false;
+                // Check if already processing
+                if (this.sendingResponse) {
+                    return;
                 }
                 
-                // Check button state
-                if (sendKissBtn.disabled) {
-                    return false;
-                }
-                
-                // Lock everything immediately
-                this.isProcessing = true;
+                // Set timestamp and flag immediately
+                this.lastActionTime = now;
                 this.sendingResponse = true;
-                this.lastClickTime['sendKiss'] = now;
                 
-                // Disable button immediately
-                sendKissBtn.disabled = true;
+                // Visual feedback
+                const originalOpacity = sendKissBtn.style.opacity;
                 sendKissBtn.style.opacity = '0.6';
-                sendKissBtn.style.cursor = 'not-allowed';
-                sendKissBtn.style.pointerEvents = 'none';
+                sendKissBtn.disabled = true;
                 
-                // Execute the action
+                // Execute
                 this.sendResponse('kiss', '💋', '发送了一个甜蜜的亲亲').finally(() => {
                     setTimeout(() => {
-                        this.isProcessing = false;
+                        this.sendingResponse = false;
                         sendKissBtn.disabled = false;
-                        sendKissBtn.style.opacity = '1';
-                        sendKissBtn.style.cursor = 'pointer';
-                        sendKissBtn.style.pointerEvents = 'auto';
-                    }, 500);
+                        sendKissBtn.style.opacity = originalOpacity || '1';
+                    }, 300);
                 });
-                
-                return false;
-            };
+            });
             
-            sendKissBtn.addEventListener('click', handleKissClick, { passive: false });
             sendKissBtn.dataset.listenerAttached = 'true';
         }
 
@@ -387,47 +361,48 @@ class LDRMoodDashboard {
         this.sendingMood = true;
 
         try {
-        if (!this.currentMood) {
-            this.showNotification('⚠️', '请先选择一个情绪！', 'warning');
-            return;
-        }
+            if (!this.currentMood) {
+                this.showNotification('⚠️', '请先选择一个情绪！', 'warning');
+                this.sendingMood = false; // Reset flag if validation fails
+                return;
+            }
 
-        const message = document.getElementById('myMoodMessage').value.trim();
-        
-        const moodData = {
-            ...this.currentMood,
-            message: message,
-            timestamp: new Date(),
-            type: 'mood',
+            const message = document.getElementById('myMoodMessage').value.trim();
+            
+            const moodData = {
+                ...this.currentMood,
+                message: message,
+                timestamp: new Date(),
+                type: 'mood',
                 sender: this.settings.userId
-        };
+            };
 
             // Save to localStorage first (for offline support)
-        this.moodHistory.unshift(moodData);
-        this.saveData();
+            this.moodHistory.unshift(moodData);
+            this.saveData();
 
-        // 清空消息输入框
-        document.getElementById('myMoodMessage').value = '';
+            // 清空消息输入框
+            document.getElementById('myMoodMessage').value = '';
 
             // Recalculate stats from history (more accurate)
             this.recalculateStats();
 
-        // 更新显示
-        this.updateStats();
-        this.renderHistory();
-        this.updateChart();
+            // 更新显示
+            this.updateStats();
+            this.renderHistory();
+            this.updateChart();
 
             // Sync to server
             try {
                 await this.syncMoodToServer(moodData);
-        this.showNotification('💕', '情绪已发送给Ta！', 'success');
+                this.showNotification('💕', '情绪已发送给Ta！', 'success');
             } catch (error) {
                 console.error('Failed to sync mood:', error);
                 this.showNotification('⚠️', '情绪已保存，但同步失败。请检查网络连接。', 'warning');
             }
 
-        // 播放发送动画
-        this.playMoodAnimation();
+            // 播放发送动画
+            this.playMoodAnimation();
         } finally {
             // Always reset sending flag, even if there was an error
             this.sendingMood = false;
@@ -435,11 +410,10 @@ class LDRMoodDashboard {
     }
 
     async sendResponse(type, emoji, message) {
-        // Prevent multiple simultaneous sends
+        // Double-check flag (defense in depth)
         if (this.sendingResponse) {
             return;
         }
-        this.sendingResponse = true;
 
         try {
         const responseData = {
