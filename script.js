@@ -80,19 +80,17 @@ class LDRMoodDashboard {
                     return;
                 }
                 
-                // Set timestamp and flag immediately
+                // Set timestamp immediately
                 this.lastActionTime = now;
-                this.sendingMood = true;
                 
                 // Visual feedback
                 sendMoodBtn.style.opacity = '0.6';
                 sendMoodBtn.disabled = true;
                 
-                // Execute
+                // Execute - sendMood() will handle the flag
                 this.sendMood().finally(() => {
-                    // Always reset after operation
+                    // Re-enable button after operation completes
                     setTimeout(() => {
-                        this.sendingMood = false;
                         sendMoodBtn.disabled = false;
                         sendMoodBtn.style.opacity = '1';
                     }, 300);
@@ -335,7 +333,6 @@ class LDRMoodDashboard {
         try {
             if (!this.currentMood) {
                 this.showNotification('⚠️', '请先选择一个情绪！', 'warning');
-                this.sendingMood = false; // Reset flag if validation fails
                 return;
             }
 
