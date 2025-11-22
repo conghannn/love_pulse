@@ -222,16 +222,11 @@ class LDRMoodDashboard {
         this.moodHistory.unshift(moodData);
         this.saveData();
 
-        // 更新统计
-        this.stats.messages++;
-        if (this.stats.moodCounts[this.currentMood.mood]) {
-            this.stats.moodCounts[this.currentMood.mood]++;
-        } else {
-            this.stats.moodCounts[this.currentMood.mood] = 1;
-        }
-
         // 清空消息输入框
         document.getElementById('myMoodMessage').value = '';
+
+        // Recalculate stats from history (more accurate)
+        this.recalculateStats();
 
         // 更新显示
         this.updateStats();
@@ -262,12 +257,9 @@ class LDRMoodDashboard {
         };
 
         this.moodHistory.unshift(responseData);
-        
-        if (type === 'hug') {
-            this.stats.hugs++;
-        } else if (type === 'kiss') {
-            this.stats.kisses++;
-        }
+
+        // Recalculate stats from history (more accurate)
+        this.recalculateStats();
 
         this.saveData();
         this.updateStats();
@@ -346,10 +338,8 @@ class LDRMoodDashboard {
                 
                 this.moodHistory = combinedHistory;
                 
-                // Update stats from server
-                if (result.data.stats) {
-                    this.stats = { ...this.stats, ...result.data.stats };
-                }
+                // Recalculate stats from the actual history (more accurate)
+                this.recalculateStats();
                 
                 // Update partner mood
                 if (result.data.partnerMood) {
@@ -451,12 +441,9 @@ class LDRMoodDashboard {
     clearHistory() {
         if (confirm('确定要清空所有历史记录吗？此操作无法撤销。')) {
             this.moodHistory = [];
-            this.stats = {
-                messages: 0,
-                hugs: 0,
-                kisses: 0,
-                moodCounts: {}
-            };
+            
+            // Recalculate stats (will be all zeros now)
+            this.recalculateStats();
             
             this.saveData();
             this.updateStats();
@@ -514,7 +501,39 @@ class LDRMoodDashboard {
         document.getElementById('autoSaveToggle').checked = this.settings.autoSave;
     }
 
+    recalculateStats() {
+        // Recalculate stats from the actual mood history
+        const stats = {
+            messages: 0,
+            hugs: 0,
+            kisses: 0,
+            moodCounts: {}
+        };
+
+        this.moodHistory.forEach(item => {
+            if (item.type === 'mood' && item.mood) {
+                stats.messages++;
+                if (stats.moodCounts[item.mood]) {
+                    stats.moodCounts[item.mood]++;
+                } else {
+                    stats.moodCounts[item.mood] = 1;
+                }
+            } else if (item.type === 'response') {
+                if (item.responseType === 'hug') {
+                    stats.hugs++;
+                } else if (item.responseType === 'kiss') {
+                    stats.kisses++;
+                }
+            }
+        });
+
+        this.stats = stats;
+    }
+
     updateStats() {
+        // Make sure stats are up to date before displaying
+        this.recalculateStats();
+        
         document.getElementById('messagesCount').textContent = this.stats.messages;
         document.getElementById('hugsCount').textContent = this.stats.hugs;
         document.getElementById('kissesCount').textContent = this.stats.kisses;

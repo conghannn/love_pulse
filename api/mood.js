@@ -104,19 +104,30 @@ export default async function handler(req, res) {
         roomData.moodHistory = roomData.moodHistory.slice(0, 100);
       }
 
-      // Update stats
-      if (type === 'mood' && mood) {
-        roomData.stats.messages++;
-        if (roomData.stats.moodCounts[mood]) {
-          roomData.stats.moodCounts[mood]++;
-        } else {
-          roomData.stats.moodCounts[mood] = 1;
+      // Recalculate stats from history (more accurate than incrementing)
+      roomData.stats = {
+        messages: 0,
+        hugs: 0,
+        kisses: 0,
+        moodCounts: {}
+      };
+
+      roomData.moodHistory.forEach(item => {
+        if (item.type === 'mood' && item.mood) {
+          roomData.stats.messages++;
+          if (roomData.stats.moodCounts[item.mood]) {
+            roomData.stats.moodCounts[item.mood]++;
+          } else {
+            roomData.stats.moodCounts[item.mood] = 1;
+          }
+        } else if (item.type === 'response') {
+          if (item.responseType === 'hug') {
+            roomData.stats.hugs++;
+          } else if (item.responseType === 'kiss') {
+            roomData.stats.kisses++;
+          }
         }
-      } else if (responseType === 'hug') {
-        roomData.stats.hugs++;
-      } else if (responseType === 'kiss') {
-        roomData.stats.kisses++;
-      }
+      });
 
       roomData.lastUpdated = new Date().toISOString();
       global.dataStore.set(roomId, roomData);
