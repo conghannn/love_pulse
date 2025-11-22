@@ -117,18 +117,17 @@ class LDRMoodDashboard {
                     return;
                 }
                 
-                // Set timestamp and flag immediately
+                // Set timestamp immediately
                 this.lastActionTime = now;
-                this.sendingResponse = true;
                 
                 // Visual feedback
                 sendHugBtn.style.opacity = '0.6';
                 sendHugBtn.disabled = true;
                 
-                // Execute
+                // Execute - sendResponse() will handle the flag
                 this.sendResponse('hug', '🤗', '发送了一个温暖的拥抱').finally(() => {
+                    // Re-enable button after operation completes
                     setTimeout(() => {
-                        this.sendingResponse = false;
                         sendHugBtn.disabled = false;
                         sendHugBtn.style.opacity = '1';
                     }, 300);
@@ -154,18 +153,17 @@ class LDRMoodDashboard {
                     return;
                 }
                 
-                // Set timestamp and flag immediately
+                // Set timestamp immediately
                 this.lastActionTime = now;
-                this.sendingResponse = true;
                 
                 // Visual feedback
                 sendKissBtn.style.opacity = '0.6';
                 sendKissBtn.disabled = true;
                 
-                // Execute
+                // Execute - sendResponse() will handle the flag
                 this.sendResponse('kiss', '💋', '发送了一个甜蜜的亲亲').finally(() => {
+                    // Re-enable button after operation completes
                     setTimeout(() => {
-                        this.sendingResponse = false;
                         sendKissBtn.disabled = false;
                         sendKissBtn.style.opacity = '1';
                     }, 300);
@@ -379,29 +377,30 @@ class LDRMoodDashboard {
     }
 
     async sendResponse(type, emoji, message) {
-        // Double-check flag (defense in depth)
+        // Prevent multiple simultaneous sends
         if (this.sendingResponse) {
             return;
         }
+        this.sendingResponse = true;
 
         try {
-        const responseData = {
-            type: 'response',
-            responseType: type,
-            emoji: emoji,
-            message: message,
-            timestamp: new Date(),
+            const responseData = {
+                type: 'response',
+                responseType: type,
+                emoji: emoji,
+                message: message,
+                timestamp: new Date(),
                 sender: this.settings.userId
-        };
+            };
 
-        this.moodHistory.unshift(responseData);
-        
+            this.moodHistory.unshift(responseData);
+            
             // Recalculate stats from history (more accurate)
             this.recalculateStats();
 
-        this.saveData();
-        this.updateStats();
-        this.renderHistory();
+            this.saveData();
+            this.updateStats();
+            this.renderHistory();
 
             // Sync to server
             try {
@@ -410,8 +409,8 @@ class LDRMoodDashboard {
                 console.error('Failed to sync response:', error);
             }
 
-        this.showNotification(emoji, message, 'success');
-        this.playMoodAnimation();
+            this.showNotification(emoji, message, 'success');
+            this.playMoodAnimation();
         } finally {
             // Always reset sending flag, even if there was an error
             this.sendingResponse = false;
