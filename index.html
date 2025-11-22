@@ -195,6 +195,18 @@
                 
                 <div class="settings-grid">
                     <div class="setting-item">
+                        <label for="roomIdInput">房间ID (与朋友共享此ID)</label>
+                        <input type="text" id="roomIdInput" placeholder="输入房间ID">
+                        <small style="color: var(--text-secondary); font-size: 0.85rem; display: block; margin-top: 4px;">与朋友使用相同的房间ID即可共享情绪</small>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <label for="userIdInput">你的ID</label>
+                        <input type="text" id="userIdInput" placeholder="你的ID" readonly>
+                        <small style="color: var(--text-secondary); font-size: 0.85rem; display: block; margin-top: 4px;">用于区分你和朋友的身份</small>
+                    </div>
+                    
+                    <div class="setting-item">
                         <label for="partnerNameInput">伴侣昵称</label>
                         <input type="text" id="partnerNameInput" placeholder="输入Ta的昵称">
                     </div>
@@ -258,6 +270,12 @@
                 <div class="heart"></div>
                 <div class="heart"></div>
             </div>
+        </div>
+
+        <!-- 通知提示 -->
+        <div class="notification" id="notification">
+            <span class="notification-icon">💕</span>
+            <span class="notification-text">通知消息</span>
         </div>
     </div>
 

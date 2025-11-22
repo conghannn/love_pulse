@@ -9,7 +9,9 @@ class LDRMoodDashboard {
             partnerName: 'Ta',
             notifications: true,
             theme: 'light',
-            autoSave: true
+            autoSave: true,
+            roomId: localStorage.getItem('roomId') || 'default-room',
+            userId: localStorage.getItem('userId') || (Math.random() > 0.5 ? 'user1' : 'user2')
         };
         this.stats = JSON.parse(localStorage.getItem('moodStats')) || {
             messages: 0,
@@ -18,17 +20,23 @@ class LDRMoodDashboard {
             moodCounts: {}
         };
         
+        // API configuration
+        this.apiBaseUrl = window.location.origin;
+        this.syncInterval = null;
+        this.lastSyncTime = null;
+        
         this.init();
     }
 
     init() {
         this.setupEventListeners();
         this.loadSettings();
+        this.loadDataFromServer();
         this.updateStats();
         this.renderHistory();
         this.initChart();
         this.startTimeUpdates();
-        this.simulatePartnerActivity();
+        this.startSyncInterval();
         
         // 显示欢迎通知
         this.showNotification('💕', '欢迎使用LDR情绪表达仪表板！', 'success');
@@ -69,6 +77,20 @@ class LDRMoodDashboard {
         });
 
         // 设置相关
+        const roomIdInput = document.getElementById('roomIdInput');
+        if (roomIdInput) {
+            roomIdInput.addEventListener('change', (e) => {
+                this.updateSetting('roomId', e.target.value);
+                // Reload data when room ID changes
+                this.loadDataFromServer();
+            });
+        }
+
+        const userIdInput = document.getElementById('userIdInput');
+        if (userIdInput) {
+            // User ID is read-only, but we can show it
+        }
+
         document.getElementById('partnerNameInput').addEventListener('change', (e) => {
             this.updateSetting('partnerName', e.target.value);
         });
@@ -180,7 +202,7 @@ class LDRMoodDashboard {
         this.animateMoodChange();
     }
 
-    sendMood() {
+    async sendMood() {
         if (!this.currentMood) {
             this.showNotification('⚠️', '请先选择一个情绪！', 'warning');
             return;
@@ -193,10 +215,10 @@ class LDRMoodDashboard {
             message: message,
             timestamp: new Date(),
             type: 'mood',
-            sender: 'me'
+            sender: this.settings.userId
         };
 
-        // 添加到历史记录
+        // Save to localStorage first (for offline support)
         this.moodHistory.unshift(moodData);
         this.saveData();
 
@@ -216,26 +238,27 @@ class LDRMoodDashboard {
         this.renderHistory();
         this.updateChart();
 
-        // 显示成功通知
-        this.showNotification('💕', '情绪已发送给Ta！', 'success');
+        // Sync to server
+        try {
+            await this.syncMoodToServer(moodData);
+            this.showNotification('💕', '情绪已发送给Ta！', 'success');
+        } catch (error) {
+            console.error('Failed to sync mood:', error);
+            this.showNotification('⚠️', '情绪已保存，但同步失败。请检查网络连接。', 'warning');
+        }
 
         // 播放发送动画
         this.playMoodAnimation();
-
-        // 模拟伴侣回应（延迟2-5秒）
-        setTimeout(() => {
-            this.simulatePartnerResponse();
-        }, Math.random() * 3000 + 2000);
     }
 
-    sendResponse(type, emoji, message) {
+    async sendResponse(type, emoji, message) {
         const responseData = {
             type: 'response',
             responseType: type,
             emoji: emoji,
             message: message,
             timestamp: new Date(),
-            sender: 'me'
+            sender: this.settings.userId
         };
 
         this.moodHistory.unshift(responseData);
@@ -250,100 +273,132 @@ class LDRMoodDashboard {
         this.updateStats();
         this.renderHistory();
 
+        // Sync to server
+        try {
+            await this.syncMoodToServer(responseData);
+        } catch (error) {
+            console.error('Failed to sync response:', error);
+        }
+
         this.showNotification(emoji, message, 'success');
         this.playMoodAnimation();
     }
 
-    simulatePartnerActivity() {
-        // 模拟伴侣的情绪更新
-        const partnerMoods = [
-            { mood: 'happy', emoji: '😊', label: '开心' },
-            { mood: 'love', emoji: '🥰', label: '爱意满满' },
-            { mood: 'miss', emoji: '🥺', label: '想念你' },
-            { mood: 'excited', emoji: '🤗', label: '兴奋' },
-            { mood: 'calm', emoji: '😌', label: '平静' }
-        ];
+    // API Methods
+    async syncMoodToServer(moodData) {
+        try {
+            const response = await fetch(`${this.apiBaseUrl}/api/mood?roomId=${this.settings.roomId}&userId=${this.settings.userId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    mood: moodData.mood,
+                    message: moodData.message,
+                    type: moodData.type,
+                    responseType: moodData.responseType,
+                    emoji: moodData.emoji,
+                    label: moodData.label,
+                    sender: moodData.sender
+                })
+            });
 
-        const partnerMessages = [
-            '想你了 💕',
-            '今天过得怎么样？',
-            '爱你哦 ❤️',
-            '晚安，做个好梦',
-            '想和你一起看电影',
-            '你在做什么呢？',
-            '想抱抱你',
-            '今天天气真好',
-            '想念你的笑容'
-        ];
-
-        // 随机更新伴侣情绪（每10-30分钟）
-        const updatePartnerMood = () => {
-            const randomMood = partnerMoods[Math.floor(Math.random() * partnerMoods.length)];
-            const randomMessage = partnerMessages[Math.floor(Math.random() * partnerMessages.length)];
-            
-            this.partnerMood = {
-                ...randomMood,
-                message: randomMessage,
-                timestamp: new Date()
-            };
-
-            // 更新显示
-            document.getElementById('partnerMoodEmoji').textContent = randomMood.emoji;
-            document.getElementById('partnerMoodLabel').textContent = randomMood.label;
-            document.getElementById('partnerMoodTime').textContent = this.formatTime(new Date());
-            document.getElementById('partnerMessage').innerHTML = `<p>${randomMessage}</p>`;
-
-            // 添加到历史记录
-            const partnerData = {
-                ...this.partnerMood,
-                type: 'mood',
-                sender: 'partner'
-            };
-            
-            this.moodHistory.unshift(partnerData);
-            this.saveData();
-            this.renderHistory();
-
-            // 显示通知
-            if (this.settings.notifications) {
-                this.showNotification(randomMood.emoji, `${this.settings.partnerName}: ${randomMessage}`, 'info');
+            if (!response.ok) {
+                throw new Error('Failed to sync mood');
             }
 
-            // 设置下次更新时间
-            setTimeout(updatePartnerMood, Math.random() * 1200000 + 600000); // 10-30分钟
-        };
-
-        // 初始延迟5-10秒后开始
-        setTimeout(updatePartnerMood, Math.random() * 5000 + 5000);
+            const result = await response.json();
+            return result;
+        } catch (error) {
+            console.error('Error syncing mood:', error);
+            throw error;
+        }
     }
 
-    simulatePartnerResponse() {
-        const responses = [
-            { emoji: '🥰', message: '收到了你的情绪，爱你！' },
-            { emoji: '💕', message: '谢谢你和我分享心情' },
-            { emoji: '🤗', message: '给你一个大大的拥抱' },
-            { emoji: '😘', message: '想你了，亲亲' },
-            { emoji: '❤️', message: '我也有同样的感受' }
-        ];
+    async loadDataFromServer() {
+        try {
+            const response = await fetch(`${this.apiBaseUrl}/api/mood?roomId=${this.settings.roomId}&userId=${this.settings.userId}`);
+            
+            if (!response.ok) {
+                throw new Error('Failed to load data');
+            }
 
-        const randomResponse = responses[Math.floor(Math.random() * responses.length)];
-        
-        const responseData = {
-            type: 'response',
-            responseType: 'message',
-            emoji: randomResponse.emoji,
-            message: randomResponse.message,
-            timestamp: new Date(),
-            sender: 'partner'
-        };
-
-        this.moodHistory.unshift(responseData);
-        this.saveData();
-        this.renderHistory();
-
-        if (this.settings.notifications) {
-            this.showNotification(randomResponse.emoji, `${this.settings.partnerName}: ${randomResponse.message}`, 'info');
+            const result = await response.json();
+            
+            if (result.success && result.data) {
+                // Merge server data with local data
+                const serverHistory = result.data.moodHistory || [];
+                
+                // Combine and deduplicate by timestamp and sender
+                const combinedHistory = [...this.moodHistory];
+                serverHistory.forEach(serverItem => {
+                    const exists = combinedHistory.some(localItem => 
+                        localItem.timestamp === serverItem.timestamp && 
+                        localItem.sender === serverItem.sender
+                    );
+                    if (!exists) {
+                        combinedHistory.push(serverItem);
+                    }
+                });
+                
+                // Sort by timestamp (newest first)
+                combinedHistory.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+                
+                this.moodHistory = combinedHistory;
+                
+                // Update stats from server
+                if (result.data.stats) {
+                    this.stats = { ...this.stats, ...result.data.stats };
+                }
+                
+                // Update partner mood
+                if (result.data.partnerMood) {
+                    this.updatePartnerMoodDisplay(result.data.partnerMood);
+                }
+                
+                // Save merged data
+                this.saveData();
+                this.renderHistory();
+                this.updateStats();
+                this.updateChart();
+                
+                this.lastSyncTime = new Date();
+            }
+        } catch (error) {
+            console.error('Error loading data from server:', error);
+            // Continue with local data if server fails
         }
+    }
+
+    updatePartnerMoodDisplay(partnerMood) {
+        if (!partnerMood) return;
+        
+        this.partnerMood = partnerMood;
+        
+        document.getElementById('partnerMoodEmoji').textContent = partnerMood.emoji || '❓';
+        document.getElementById('partnerMoodLabel').textContent = partnerMood.label || '等待Ta分享情绪';
+        
+        if (partnerMood.timestamp) {
+            const timeStr = this.formatTime(new Date(partnerMood.timestamp));
+            const taMoodTime = document.getElementById('taMoodTime');
+            if (taMoodTime) {
+                taMoodTime.innerHTML = `
+                    <div>🩷 Lanyi time — ${timeStr}</div>
+                    <div>💙 Cong time — ${timeStr}</div>
+                `;
+            }
+        }
+        
+        if (partnerMood.message) {
+            document.getElementById('partnerMessage').innerHTML = `<p>${partnerMood.message}</p>`;
+        }
+    }
+
+    startSyncInterval() {
+        // Poll for updates every 5 seconds
+        this.syncInterval = setInterval(() => {
+            this.loadDataFromServer();
+        }, 5000);
     }
 
     filterStats(period) {
@@ -430,9 +485,23 @@ class LDRMoodDashboard {
     }
 
     loadSettings() {
+        // 加载房间ID和用户ID
+        const roomIdInput = document.getElementById('roomIdInput');
+        if (roomIdInput) {
+            roomIdInput.value = this.settings.roomId;
+        }
+        
+        const userIdInput = document.getElementById('userIdInput');
+        if (userIdInput) {
+            userIdInput.value = this.settings.userId;
+        }
+
         // 加载伴侣昵称
         document.getElementById('partnerNameInput').value = this.settings.partnerName;
-        document.getElementById('partnerName').textContent = this.settings.partnerName;
+        const partnerNameEl = document.getElementById('partnerName');
+        if (partnerNameEl) {
+            partnerNameEl.textContent = this.settings.partnerName;
+        }
 
         // 加载通知设置
         document.getElementById('notificationToggle').checked = this.settings.notifications;
@@ -465,7 +534,8 @@ class LDRMoodDashboard {
         }
 
         timeline.innerHTML = this.moodHistory.slice(0, 20).map(item => {
-            const isMe = item.sender === 'me';
+            // Check if sender is current user
+            const isMe = item.sender === 'me' || item.sender === this.settings.userId;
             const avatarClass = isMe ? 'me' : 'partner';
             const name = isMe ? '我' : this.settings.partnerName;
             
@@ -628,11 +698,17 @@ class LDRMoodDashboard {
 
     showNotification(icon, message, type = 'info') {
         const notification = document.getElementById('notification');
+        if (!notification) {
+            // Fallback to console if notification element doesn't exist
+            console.log(`${icon} ${message}`);
+            return;
+        }
+
         const iconElement = notification.querySelector('.notification-icon');
         const textElement = notification.querySelector('.notification-text');
 
-        iconElement.textContent = icon;
-        textElement.textContent = message;
+        if (iconElement) iconElement.textContent = icon;
+        if (textElement) textElement.textContent = message;
 
         // 设置通知样式
         notification.className = `notification ${type}`;
@@ -656,6 +732,8 @@ class LDRMoodDashboard {
             localStorage.setItem('moodHistory', JSON.stringify(this.moodHistory));
             localStorage.setItem('dashboardSettings', JSON.stringify(this.settings));
             localStorage.setItem('moodStats', JSON.stringify(this.stats));
+            localStorage.setItem('roomId', this.settings.roomId);
+            localStorage.setItem('userId', this.settings.userId);
         }
     }
 }
