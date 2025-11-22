@@ -43,26 +43,72 @@ class LDRMoodDashboard {
     }
 
     setupEventListeners() {
-        // 情绪选择按钮
-        document.querySelectorAll('.mood-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                this.selectMood(e.target);
+        // 情绪选择按钮 - use event delegation to prevent multiple listeners
+        const moodOptionsContainer = document.getElementById('moodOptions');
+        if (moodOptionsContainer && !moodOptionsContainer.dataset.listenerAttached) {
+            moodOptionsContainer.addEventListener('click', (e) => {
+                const btn = e.target.closest('.mood-btn');
+                if (btn && btn.dataset.processing !== 'true') {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    this.selectMood(btn);
+                }
             });
-        });
+            moodOptionsContainer.dataset.listenerAttached = 'true';
+        }
 
-        // 发送情绪按钮
-        document.getElementById('sendMoodBtn').addEventListener('click', () => {
-            this.sendMood();
-        });
+        // 发送情绪按钮 - prevent multiple clicks
+        const sendMoodBtn = document.getElementById('sendMoodBtn');
+        if (sendMoodBtn && !sendMoodBtn.dataset.listenerAttached) {
+            sendMoodBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                if (sendMoodBtn.dataset.processing !== 'true') {
+                    sendMoodBtn.dataset.processing = 'true';
+                    this.sendMood().finally(() => {
+                        setTimeout(() => {
+                            sendMoodBtn.dataset.processing = 'false';
+                        }, 1000);
+                    });
+                }
+            });
+            sendMoodBtn.dataset.listenerAttached = 'true';
+        }
 
-        // 响应按钮
-        document.getElementById('sendHugBtn').addEventListener('click', () => {
-            this.sendResponse('hug', '🤗', '发送了一个温暖的拥抱');
-        });
+        // 响应按钮 - prevent multiple clicks
+        const sendHugBtn = document.getElementById('sendHugBtn');
+        if (sendHugBtn && !sendHugBtn.dataset.listenerAttached) {
+            sendHugBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                if (sendHugBtn.dataset.processing !== 'true') {
+                    sendHugBtn.dataset.processing = 'true';
+                    this.sendResponse('hug', '🤗', '发送了一个温暖的拥抱').finally(() => {
+                        setTimeout(() => {
+                            sendHugBtn.dataset.processing = 'false';
+                        }, 1000);
+                    });
+                }
+            });
+            sendHugBtn.dataset.listenerAttached = 'true';
+        }
 
-        document.getElementById('sendKissBtn').addEventListener('click', () => {
-            this.sendResponse('kiss', '💋', '发送了一个甜蜜的亲亲');
-        });
+        const sendKissBtn = document.getElementById('sendKissBtn');
+        if (sendKissBtn && !sendKissBtn.dataset.listenerAttached) {
+            sendKissBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                if (sendKissBtn.dataset.processing !== 'true') {
+                    sendKissBtn.dataset.processing = 'true';
+                    this.sendResponse('kiss', '💋', '发送了一个甜蜜的亲亲').finally(() => {
+                        setTimeout(() => {
+                            sendKissBtn.dataset.processing = 'false';
+                        }, 1000);
+                    });
+                }
+            });
+            sendKissBtn.dataset.listenerAttached = 'true';
+        }
 
         // 时间筛选按钮
         document.querySelectorAll('.filter-btn').forEach(btn => {
@@ -136,9 +182,16 @@ class LDRMoodDashboard {
     }
 
     selectMood(button) {
+        // Prevent multiple rapid clicks
+        if (button.dataset.processing === 'true') {
+            return;
+        }
+        button.dataset.processing = 'true';
+        
         // 移除其他按钮的激活状态
         document.querySelectorAll('.mood-btn').forEach(btn => {
             btn.classList.remove('active');
+            btn.dataset.processing = 'false';
         });
 
         // 激活当前按钮
@@ -200,11 +253,23 @@ class LDRMoodDashboard {
 
         // 添加动画效果
         this.animateMoodChange();
+        
+        // Reset processing flag after a short delay
+        setTimeout(() => {
+            button.dataset.processing = 'false';
+        }, 300);
     }
 
     async sendMood() {
+        // Prevent multiple simultaneous sends
+        if (this.sendingMood) {
+            return;
+        }
+        this.sendingMood = true;
+
         if (!this.currentMood) {
             this.showNotification('⚠️', '请先选择一个情绪！', 'warning');
+            this.sendingMood = false;
             return;
         }
 
@@ -236,7 +301,7 @@ class LDRMoodDashboard {
         // Sync to server
         try {
             await this.syncMoodToServer(moodData);
-            this.showNotification('💕', '情绪已发送给Ta！', 'success');
+        this.showNotification('💕', '情绪已发送给Ta！', 'success');
         } catch (error) {
             console.error('Failed to sync mood:', error);
             this.showNotification('⚠️', '情绪已保存，但同步失败。请检查网络连接。', 'warning');
@@ -244,9 +309,18 @@ class LDRMoodDashboard {
 
         // 播放发送动画
         this.playMoodAnimation();
+
+        // Reset sending flag
+        this.sendingMood = false;
     }
 
     async sendResponse(type, emoji, message) {
+        // Prevent multiple simultaneous sends
+        if (this.sendingResponse) {
+            return;
+        }
+        this.sendingResponse = true;
+
         const responseData = {
             type: 'response',
             responseType: type,
@@ -257,7 +331,7 @@ class LDRMoodDashboard {
         };
 
         this.moodHistory.unshift(responseData);
-
+        
         // Recalculate stats from history (more accurate)
         this.recalculateStats();
 
@@ -274,6 +348,9 @@ class LDRMoodDashboard {
 
         this.showNotification(emoji, message, 'success');
         this.playMoodAnimation();
+        
+        // Reset sending flag
+        this.sendingResponse = false;
     }
 
     // API Methods
@@ -347,8 +424,8 @@ class LDRMoodDashboard {
                 }
                 
                 // Save merged data
-                this.saveData();
-                this.renderHistory();
+            this.saveData();
+            this.renderHistory();
                 this.updateStats();
                 this.updateChart();
                 
