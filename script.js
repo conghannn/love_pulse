@@ -62,15 +62,8 @@ class LDRMoodDashboard {
         }
 
         // 发送情绪按钮 - simple and reliable
-        let sendMoodBtn = document.getElementById('sendMoodBtn');
+        const sendMoodBtn = document.getElementById('sendMoodBtn');
         if (sendMoodBtn) {
-            // Remove old listener if exists by cloning
-            if (sendMoodBtn.dataset.listenerAttached) {
-                const newBtn = sendMoodBtn.cloneNode(true);
-                sendMoodBtn.parentNode.replaceChild(newBtn, sendMoodBtn);
-                sendMoodBtn = newBtn;
-            }
-            
             sendMoodBtn.addEventListener('click', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
@@ -92,7 +85,6 @@ class LDRMoodDashboard {
                 this.sendingMood = true;
                 
                 // Visual feedback
-                const originalOpacity = sendMoodBtn.style.opacity;
                 sendMoodBtn.style.opacity = '0.6';
                 sendMoodBtn.disabled = true;
                 
@@ -102,23 +94,15 @@ class LDRMoodDashboard {
                     setTimeout(() => {
                         this.sendingMood = false;
                         sendMoodBtn.disabled = false;
-                        sendMoodBtn.style.opacity = originalOpacity || '1';
+                        sendMoodBtn.style.opacity = '1';
                     }, 300);
                 });
             });
-            
-            sendMoodBtn.dataset.listenerAttached = 'true';
         }
 
         // 响应按钮 - simple and reliable
-        let sendHugBtn = document.getElementById('sendHugBtn');
+        const sendHugBtn = document.getElementById('sendHugBtn');
         if (sendHugBtn) {
-            if (sendHugBtn.dataset.listenerAttached) {
-                const newBtn = sendHugBtn.cloneNode(true);
-                sendHugBtn.parentNode.replaceChild(newBtn, sendHugBtn);
-                sendHugBtn = newBtn;
-            }
-            
             sendHugBtn.addEventListener('click', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
@@ -140,7 +124,6 @@ class LDRMoodDashboard {
                 this.sendingResponse = true;
                 
                 // Visual feedback
-                const originalOpacity = sendHugBtn.style.opacity;
                 sendHugBtn.style.opacity = '0.6';
                 sendHugBtn.disabled = true;
                 
@@ -149,22 +132,14 @@ class LDRMoodDashboard {
                     setTimeout(() => {
                         this.sendingResponse = false;
                         sendHugBtn.disabled = false;
-                        sendHugBtn.style.opacity = originalOpacity || '1';
+                        sendHugBtn.style.opacity = '1';
                     }, 300);
                 });
             });
-            
-            sendHugBtn.dataset.listenerAttached = 'true';
         }
 
-        let sendKissBtn = document.getElementById('sendKissBtn');
+        const sendKissBtn = document.getElementById('sendKissBtn');
         if (sendKissBtn) {
-            if (sendKissBtn.dataset.listenerAttached) {
-                const newBtn = sendKissBtn.cloneNode(true);
-                sendKissBtn.parentNode.replaceChild(newBtn, sendKissBtn);
-                sendKissBtn = newBtn;
-            }
-            
             sendKissBtn.addEventListener('click', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
@@ -186,7 +161,6 @@ class LDRMoodDashboard {
                 this.sendingResponse = true;
                 
                 // Visual feedback
-                const originalOpacity = sendKissBtn.style.opacity;
                 sendKissBtn.style.opacity = '0.6';
                 sendKissBtn.disabled = true;
                 
@@ -195,12 +169,10 @@ class LDRMoodDashboard {
                     setTimeout(() => {
                         this.sendingResponse = false;
                         sendKissBtn.disabled = false;
-                        sendKissBtn.style.opacity = originalOpacity || '1';
+                        sendKissBtn.style.opacity = '1';
                     }, 300);
                 });
             });
-            
-            sendKissBtn.dataset.listenerAttached = 'true';
         }
 
         // 时间筛选按钮
