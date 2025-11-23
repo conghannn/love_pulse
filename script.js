@@ -270,26 +270,32 @@ class LDRMoodDashboard {
         function updateDualTime() {
             const now = new Date();
         
-            // 北京（或用户本地）时间
-            const lanyiOptions = {
-                hour: '2-digit',
-                minute: '2-digit',
-                weekday: 'short',
-                month: 'short',
-                day: 'numeric'
+            // Helper function to format time as "Sun, Nov 23, 14:53"
+            const formatTime = (date, timeZone) => {
+                const parts = new Intl.DateTimeFormat('en-US', {
+                    weekday: 'short',
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: false,
+                    timeZone: timeZone
+                }).formatToParts(date);
+                
+                const weekday = parts.find(p => p.type === 'weekday').value;
+                const month = parts.find(p => p.type === 'month').value;
+                const day = parts.find(p => p.type === 'day').value;
+                const hour = parts.find(p => p.type === 'hour').value;
+                const minute = parts.find(p => p.type === 'minute').value;
+                
+                return `${weekday}, ${month} ${day}, ${hour}:${minute}`;
             };
-            const lanyiTime = now.toLocaleString('en-US', lanyiOptions);
         
-            // 美国西海岸 PST/PDT
-            const congOptions = {
-                hour: '2-digit',
-                minute: '2-digit',
-                weekday: 'short',
-                month: 'short',
-                day: 'numeric',
-                timeZone: 'America/Los_Angeles'
-            };
-            const congTime = now.toLocaleString('en-US', congOptions);
+            // 中国时间 (China time zone) - Format: Sun, Nov 23, 14:53
+            const lanyiTime = formatTime(now, 'Asia/Shanghai');
+        
+            // 美国西海岸 PST/PDT (USA California time zone) - Format: Sat, Nov 22, 14:53
+            const congTime = formatTime(now, 'America/Los_Angeles');
         
             // 写入 DOM - 我的情绪
             const myLanyi = document.getElementById("myLanyiTime");
@@ -510,12 +516,40 @@ class LDRMoodDashboard {
         document.getElementById('partnerMoodLabel').textContent = partnerMood.label || '等待Ta分享情绪';
         
         if (partnerMood.timestamp) {
-            const timeStr = this.formatTime(new Date(partnerMood.timestamp));
+            const timestamp = new Date(partnerMood.timestamp);
+            
+            // Helper function to format time as "Sun, Nov 23, 14:53"
+            const formatTime = (date, timeZone) => {
+                const parts = new Intl.DateTimeFormat('en-US', {
+                    weekday: 'short',
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: false,
+                    timeZone: timeZone
+                }).formatToParts(date);
+                
+                const weekday = parts.find(p => p.type === 'weekday').value;
+                const month = parts.find(p => p.type === 'month').value;
+                const day = parts.find(p => p.type === 'day').value;
+                const hour = parts.find(p => p.type === 'hour').value;
+                const minute = parts.find(p => p.type === 'minute').value;
+                
+                return `${weekday}, ${month} ${day}, ${hour}:${minute}`;
+            };
+            
+            // Format Lanyi time (China time zone) - Format: Sun, Nov 23, 14:53
+            const lanyiTimeStr = formatTime(timestamp, 'Asia/Shanghai');
+            
+            // Format Cong time (USA California time zone) - Format: Sat, Nov 22, 14:53
+            const congTimeStr = formatTime(timestamp, 'America/Los_Angeles');
+            
             const taMoodTime = document.getElementById('taMoodTime');
             if (taMoodTime) {
                 taMoodTime.innerHTML = `
-                    <div>🩷 Lanyi time — ${timeStr}</div>
-                    <div>💙 Cong time — ${timeStr}</div>
+                    <div>🩷 Lanyi time — ${lanyiTimeStr}</div>
+                    <div>💙 Cong time — ${congTimeStr}</div>
                 `;
             }
         }
