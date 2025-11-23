@@ -40,6 +40,7 @@ class LDRMoodDashboard {
         this.renderHistory();
         this.initChart();
         this.startTimeUpdates();
+        this.startDualTimeUpdates();
         this.startSyncInterval();
         
         // 显示欢迎通知
@@ -267,56 +268,9 @@ class LDRMoodDashboard {
 
         document.getElementById('myMoodEmoji').textContent = emoji;
         document.getElementById('myMoodLabel').textContent = label;
-        function updateDualTime() {
-            const now = new Date();
         
-            // Helper function to format time as "Sun, Nov 23, 14:53"
-            const formatTime = (date, timeZone) => {
-                const parts = new Intl.DateTimeFormat('en-US', {
-                    weekday: 'short',
-                    month: 'short',
-                    day: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    hour12: false,
-                    timeZone: timeZone
-                }).formatToParts(date);
-                
-                const weekday = parts.find(p => p.type === 'weekday').value;
-                const month = parts.find(p => p.type === 'month').value;
-                const day = parts.find(p => p.type === 'day').value;
-                const hour = parts.find(p => p.type === 'hour').value;
-                const minute = parts.find(p => p.type === 'minute').value;
-                
-                return `${weekday}, ${month} ${day}, ${hour}:${minute}`;
-            };
-        
-            // 中国时间 (China time zone) - Format: Sun, Nov 23, 14:53
-            const lanyiTime = formatTime(now, 'Asia/Shanghai');
-        
-            // 美国西海岸 PST/PDT (USA California time zone) - Format: Sat, Nov 22, 14:53
-            const congTime = formatTime(now, 'America/Los_Angeles');
-        
-            // 写入 DOM - 我的情绪
-            const myLanyi = document.getElementById("myLanyiTime");
-            const myCong = document.getElementById("myCongTime");
-        
-            if (myLanyi) myLanyi.textContent = `👩🏻‍🦰 Lanyi time — ${lanyiTime}`;
-            if (myCong)  myCong.textContent  = `👨🏻‍🦱 Cong time — ${congTime}`;
-        
-            // 写入 DOM - Ta 的情绪
-            const taLanyi = document.getElementById("taLanyiTime");
-            const taCong = document.getElementById("taCongTime");
-        
-            if (taLanyi) taLanyi.textContent = `👩🏻‍🦰 Lanyi time — ${lanyiTime}`;
-            if (taCong)  taCong.textContent  = `👨🏻‍🦱 Cong time — ${congTime}`;
-        }
-        
-        // 初次运行
-        updateDualTime();
-        
-        // 每分钟自动更新
-        setInterval(updateDualTime, 60000);        
+        // Update time display (time is already updating continuously)
+        this.updateDualTime();        
 
         // 添加动画效果
         this.animateMoodChange();
@@ -519,31 +473,51 @@ class LDRMoodDashboard {
             const timestamp = new Date(partnerMood.timestamp);
             
             // Helper function to format time as "Sun, Nov 23, 14:53"
-            const formatTime = (date, timeZone) => {
-                const parts = new Intl.DateTimeFormat('en-US', {
-                    weekday: 'short',
-                    month: 'short',
-                    day: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    hour12: false,
-                    timeZone: timeZone
-                }).formatToParts(date);
-                
-                const weekday = parts.find(p => p.type === 'weekday').value;
-                const month = parts.find(p => p.type === 'month').value;
-                const day = parts.find(p => p.type === 'day').value;
-                const hour = parts.find(p => p.type === 'hour').value;
-                const minute = parts.find(p => p.type === 'minute').value;
-                
-                return `${weekday}, ${month} ${day}, ${hour}:${minute}`;
+            const formatTimeWithDate = (date, timeZone) => {
+                try {
+                    // Create formatter for date parts
+                    const dateFormatter = new Intl.DateTimeFormat('en-US', {
+                        weekday: 'short',
+                        month: 'short',
+                        day: 'numeric',
+                        timeZone: timeZone
+                    });
+                    
+                    // Create formatter for time parts
+                    const timeFormatter = new Intl.DateTimeFormat('en-US', {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: false,
+                        timeZone: timeZone
+                    });
+                    
+                    // Get date string (e.g., "Sun, Nov 23")
+                    const dateStr = dateFormatter.format(date);
+                    
+                    // Get time string (e.g., "14:53")
+                    const timeStr = timeFormatter.format(date);
+                    
+                    return `${dateStr}, ${timeStr}`;
+                } catch (error) {
+                    console.error('Error formatting time:', error);
+                    // Fallback format
+                    return date.toLocaleString('en-US', { 
+                        weekday: 'short',
+                        month: 'short',
+                        day: 'numeric',
+                        hour: '2-digit', 
+                        minute: '2-digit',
+                        hour12: false,
+                        timeZone: timeZone 
+                    });
+                }
             };
             
             // Format Lanyi time (China time zone) - Format: Sun, Nov 23, 14:53
-            const lanyiTimeStr = formatTime(timestamp, 'Asia/Shanghai');
+            const lanyiTimeStr = formatTimeWithDate(timestamp, 'Asia/Shanghai');
             
             // Format Cong time (USA California time zone) - Format: Sat, Nov 22, 14:53
-            const congTimeStr = formatTime(timestamp, 'America/Los_Angeles');
+            const congTimeStr = formatTimeWithDate(timestamp, 'America/Los_Angeles');
             
             const taMoodTime = document.getElementById('taMoodTime');
             if (taMoodTime) {
@@ -865,6 +839,81 @@ class LDRMoodDashboard {
         });
         this.chart.data.datasets[0].data = data;
         this.chart.update();
+    }
+
+    updateDualTime() {
+        const now = new Date();
+    
+        // Helper function to format time as "Sun, Nov 23, 14:53"
+        const formatTimeWithDate = (date, timeZone) => {
+            try {
+                // Create formatter for date parts
+                const dateFormatter = new Intl.DateTimeFormat('en-US', {
+                    weekday: 'short',
+                    month: 'short',
+                    day: 'numeric',
+                    timeZone: timeZone
+                });
+                
+                // Create formatter for time parts
+                const timeFormatter = new Intl.DateTimeFormat('en-US', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: false,
+                    timeZone: timeZone
+                });
+                
+                // Get date string (e.g., "Sun, Nov 23")
+                const dateStr = dateFormatter.format(date);
+                
+                // Get time string (e.g., "14:53")
+                const timeStr = timeFormatter.format(date);
+                
+                return `${dateStr}, ${timeStr}`;
+            } catch (error) {
+                console.error('Error formatting time:', error);
+                // Fallback format
+                return date.toLocaleString('en-US', { 
+                    weekday: 'short',
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit', 
+                    minute: '2-digit',
+                    hour12: false,
+                    timeZone: timeZone 
+                });
+            }
+        };
+    
+        // 中国时间 (China time zone) - Format: Sun, Nov 23, 14:53
+        const lanyiTime = formatTimeWithDate(now, 'Asia/Shanghai');
+    
+        // 美国西海岸 PST/PDT (USA California time zone) - Format: Sat, Nov 22, 14:53
+        const congTime = formatTimeWithDate(now, 'America/Los_Angeles');
+    
+        // 写入 DOM - 我的情绪
+        const myLanyi = document.getElementById("myLanyiTime");
+        const myCong = document.getElementById("myCongTime");
+    
+        if (myLanyi) myLanyi.textContent = `👩🏻‍🦰 Lanyi time — ${lanyiTime}`;
+        if (myCong)  myCong.textContent  = `👨🏻‍🦱 Cong time — ${congTime}`;
+    
+        // 写入 DOM - Ta 的情绪
+        const taLanyi = document.getElementById("taLanyiTime");
+        const taCong = document.getElementById("taCongTime");
+    
+        if (taLanyi) taLanyi.textContent = `👩🏻‍🦰 Lanyi time — ${lanyiTime}`;
+        if (taCong)  taCong.textContent  = `👨🏻‍🦱 Cong time — ${congTime}`;
+    }
+
+    startDualTimeUpdates() {
+        // Update immediately
+        this.updateDualTime();
+        
+        // Update every minute (60000ms)
+        setInterval(() => {
+            this.updateDualTime();
+        }, 60000);
     }
 
     startTimeUpdates() {
